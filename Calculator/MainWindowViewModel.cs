@@ -359,22 +359,20 @@ namespace Calculator
         {
             if (number != null)
             {
-                bool wasDigitGroupingEnabled = IsDigitGroupingEnabled; // Salvează starea inițială
-
-                IsDigitGroupingEnabled = false; // Dezactivează digit grouping temporar
-                if (DisplayText == "0" || _isNewNumber)
+                // Dacă suntem la început, înlocuim _internalNumberString cu cifra introdusă,
+                // altfel adăugăm cifra la sfârșit.
+                if (_isNewNumber)
                 {
-                    DisplayText = number;
+                    _internalNumberString = number;
                     _isNewNumber = false;
                 }
                 else
                 {
-                    DisplayText += number;
+                    _internalNumberString += number;
                 }
-
-                IsDigitGroupingEnabled = wasDigitGroupingEnabled; // Restaurează starea digit grouping
-                UpdateDisplayText(); // Formatează numărul final
-                //UpdateBaseDisplayText(); // Actualizează valorile din bazele de numerație
+                // Actualizează DisplayText pe baza _internalNumberString fără separatorii de mii,
+                // iar UpdateDisplayText se va ocupa de formatarea lor dacă e necesar.
+                UpdateDisplayText();
             }
         }
 
@@ -538,6 +536,7 @@ namespace Calculator
         private void ExecuteClearCommand(object parameter)
         {
             DisplayText = "0";
+            _internalNumberString = DisplayText;
             _firstOperand = 0;
             _currentOperator = null;
             _isNewNumber = true;
@@ -554,12 +553,13 @@ namespace Calculator
 
         private void ExecuteBackspaceCommand(object parameter)
         {
-            if (!string.IsNullOrEmpty(DisplayText))
+            if (!string.IsNullOrEmpty(_internalNumberString))
             {
-                DisplayText = DisplayText.Length == 1 ? "0" : DisplayText.Substring(0, DisplayText.Length - 1);
-                if (string.IsNullOrEmpty(DisplayText))
+                _internalNumberString = _internalNumberString.Length == 1 ? "0" : _internalNumberString.Substring(0, _internalNumberString.Length - 1);
+                // Dacă s-a șters tot, considerăm că avem "0"
+                if (string.IsNullOrEmpty(_internalNumberString))
                 {
-                    DisplayText = "0";
+                    _internalNumberString = "0";
                 }
                 UpdateDisplayText();
             }
@@ -691,13 +691,23 @@ namespace Calculator
         {
             if (IsDigitGroupingEnabled)
             {
+                // Folosim _internalNumberString, care nu conține separatorii de mii.
                 if (long.TryParse(_internalNumberString, out long number))
                 {
                     CultureInfo culture = CultureInfo.CurrentCulture;
-                    string formattedNumber = number.ToString("N0", culture);  // Formatează numărul
+                    string formattedNumber = number.ToString("N0", culture);  // Folosește "N0" ca să nu aibă zecimale
                     DisplayText = formattedNumber;
                 }
-                //Daca parsarea nu reuseste, mentine DisplayText in formatul original
+                else
+                {
+                    // Dacă parsarea eșuează, afișăm șirul neformatat
+                    DisplayText = _internalNumberString;
+                }
+            }
+            else
+            {
+                // Când digit grouping nu e activ, afișează exact _internalNumberString
+                DisplayText = _internalNumberString;
             }
             UpdateBaseDisplayText();
         }
@@ -705,7 +715,7 @@ namespace Calculator
         private void UpdateBaseDisplayText()
         {
             // Daca internalNumberString este un numar valid
-            if (long.TryParse(_displayText, out long number))
+            if (long.TryParse(_displayText, NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out long number))
             {
                 HexValue = Convert.ToString(number, 16).ToUpper();
                 DecValue = number.ToString();
