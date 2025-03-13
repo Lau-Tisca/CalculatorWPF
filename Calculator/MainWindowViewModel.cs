@@ -37,12 +37,14 @@ namespace Calculator
                 {
                     _isDigitGroupingEnabled = value;
                     OnPropertyChanged(nameof(IsDigitGroupingEnabled));
+                    Properties.Settings.Default.IsDigitGroupingEnabled = value;
+                    Properties.Settings.Default.Save();
                     UpdateDisplayText();
                 }
             }
         }
 
-        private bool _isStandardMode = true;
+        private bool _isStandardMode;
         public bool IsStandardMode
         {
             get { return _isStandardMode; }
@@ -53,6 +55,8 @@ namespace Calculator
                     _isStandardMode = value;
                     OnPropertyChanged(nameof(IsStandardMode));
                     OnPropertyChanged(nameof(IsProgrammerMode));
+                    Properties.Settings.Default.StandardMode = value;
+                    Properties.Settings.Default.Save();
                     UpdateVisibility();
                 }
             }
@@ -69,6 +73,8 @@ namespace Calculator
                     _isProgrammerMode = value;
                     OnPropertyChanged(nameof(IsProgrammerMode));
                     OnPropertyChanged(nameof(IsStandardMode));
+                    Properties.Settings.Default.StandardMode = !value;
+                    Properties.Settings.Default.Save();
                     UpdateVisibility();
                 }
             }
@@ -79,7 +85,7 @@ namespace Calculator
         public string OctValue { get; private set; }
         public string BinValue { get; private set; }
 
-        private int _selectedBase = 10;
+        private int _selectedBase;
         public int SelectedBase
         {
             get { return _selectedBase; }
@@ -89,6 +95,8 @@ namespace Calculator
                 {
                     _selectedBase = value;
                     OnPropertyChanged(nameof(SelectedBase));
+                    Properties.Settings.Default.SelectedBase = value;
+                    Properties.Settings.Default.Save();
                     UpdateBaseDisplayText();
                 }
             }
@@ -290,7 +298,8 @@ namespace Calculator
             }
         }
 
-        // Urmează aici definirea comenzilor (ICommand)
+        public ObservableCollection<bool> IsDigitEnabled { get; private set; } = new ObservableCollection<bool>();
+        public ObservableCollection<decimal> MemoryStack { get; private set; } = new ObservableCollection<decimal>();
         public ICommand NumberCommand { get; private set; }
         public ICommand OperatorCommand { get; private set; }
         public ICommand CalculateCommand { get; private set; }
@@ -304,6 +313,10 @@ namespace Calculator
         public ICommand MemoryAddCommand { get; private set; }
         public ICommand MemorySubtractCommand { get; private set; }
         public ICommand MemoryStoreCommand { get; private set; }
+        public ICommand MemoryAddFromMemoryCommand { get; private set; }
+        public ICommand MemorySubtractFromMemoryCommand { get; private set; }
+        public ICommand MemoryRemoveCommand { get; private set; }
+        public ICommand ShowMemoryStackCommand { get; private set; }
         public ICommand SetStandardModeCommand { get; private set; }
         public ICommand SetProgrammerModeCommand { get; private set; }
         public ICommand ProgrammerOperatorCommand { get; private set; }
@@ -335,7 +348,10 @@ namespace Calculator
             MemoryRecallCommand = new RelayCommand<string>(ExecuteMemoryRecallCommand);
             MemoryAddCommand = new RelayCommand<string>(ExecuteMemoryAddCommand);
             MemorySubtractCommand = new RelayCommand<string>(ExecuteMemorySubtractCommand);
+            //MemoryAddFromMemoryCommand = new RelayCommand<object>(ExecuteMemoryAddFromMemoryCommand);
+            //MemorySubtractFromMemoryCommand = new RelayCommand<object>(ExecuteMemorySubtractFromMemoryCommand);
             MemoryStoreCommand = new RelayCommand<string>(ExecuteMemoryStoreCommand);
+            ShowMemoryStackCommand = new RelayCommand(ExecuteShowMemoryStackCommand);
             SetStandardModeCommand = new RelayCommand<string>(ExecuteSetStandardModeCommand);
             SetProgrammerModeCommand = new RelayCommand<string>(ExecuteSetProgrammerModeCommand);
             ProgrammerOperatorCommand = new RelayCommand<string>(ExecuteProgrammerOperatorCommand);
@@ -343,6 +359,11 @@ namespace Calculator
             CopyCommand = new RelayCommand<string>(ExecuteCopyCommand);
             PasteCommand = new RelayCommand<string>(ExecutePasteCommand);
             AboutCommand = new RelayCommand<string>(ExecuteAboutCommand);
+
+            IsDigitGroupingEnabled = Properties.Settings.Default.IsDigitGroupingEnabled;
+            IsStandardMode = Properties.Settings.Default.StandardMode;
+            IsProgrammerMode = !IsStandardMode;
+            SelectedBase = Properties.Settings.Default.SelectedBase;
 
             IsDecSelected = true; //Initial selectat
             UpdateBaseDisplayText();
@@ -576,21 +597,28 @@ namespace Calculator
 
         private void ExecuteDecimalCommand(object parameter)
         {
-            if (!DisplayText.Contains("."))
+            if (!_internalNumberString.Contains("."))
             {
-                DisplayText += ".";
+                _internalNumberString += ".";
+                UpdateDisplayText();
             }
         }
 
         private void ExecuteMemoryClearCommand(object parameter)
         {
             _memoryValue = 0;
+            MemoryStack.Clear();
         }
 
         private void ExecuteMemoryRecallCommand(object parameter)
         {
-            DisplayText = _memoryValue.ToString();
-            UpdateDisplayText();
+            DisplayText = _memoryValue.ToString();            
+            //UpdateDisplayText();
+            if (MemoryStack.Count > 0)
+            {
+                //DisplayText = MemoryStack[MemoryStack.Count - 1].ToString();
+                UpdateDisplayText();
+            }
         }
 
         private void ExecuteMemoryAddCommand(object parameter)
@@ -598,6 +626,7 @@ namespace Calculator
             if (decimal.TryParse(DisplayText, out decimal number))
             {
                 _memoryValue += number;
+                MemoryStack.Add(number);
             }
         }
 
@@ -606,6 +635,7 @@ namespace Calculator
             if (decimal.TryParse(DisplayText, out decimal number))
             {
                 _memoryValue -= number;
+                MemoryStack.Add(-number);
             }
         }
 
@@ -614,8 +644,25 @@ namespace Calculator
             if (decimal.TryParse(DisplayText, out decimal number))
             {
                 _memoryValue = number;
+                MemoryStack.Add(number);
             }
         }
+
+        private void ExecuteShowMemoryStackCommand()
+        {
+            // Afișează stiva de valori. Puteți afișa folosind un MessageBox sau deschideți un Popup personalizat.
+            string message = "Memorie:\n";
+            int index = 0;
+            foreach (var val in MemoryStack)
+            {
+                message += $"{index++}: {val.ToString("N", CultureInfo.CurrentCulture)}\n";
+            }
+            MessageBox.Show(message, "Stiva de Memorie (M>)");
+
+            // Dacă doriți ca utilizatorul să poată selecta o valoare, ar fi ideal să afișați un control (ex. ListBox) care permite
+            // interacțiunea și apoi, în urma selecției, să setați DisplayText sau _internalNumberString cu valoarea aleasă.
+        }
+
 
         private void ExecuteSetStandardModeCommand(object parameter)
         {
@@ -692,10 +739,10 @@ namespace Calculator
             if (IsDigitGroupingEnabled)
             {
                 // Folosim _internalNumberString, care nu conține separatorii de mii.
-                if (long.TryParse(_internalNumberString, out long number))
+                if (decimal.TryParse(_internalNumberString,  out decimal number))
                 {
                     CultureInfo culture = CultureInfo.CurrentCulture;
-                    string formattedNumber = number.ToString("N0", culture);  // Folosește "N0" ca să nu aibă zecimale
+                    string formattedNumber = number.ToString("N0", culture); 
                     DisplayText = formattedNumber;
                 }
                 else
@@ -714,28 +761,22 @@ namespace Calculator
 
         private void UpdateBaseDisplayText()
         {
-            // Daca internalNumberString este un numar valid
-            if (long.TryParse(_displayText, NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out long number))
+            // Se presupune că _internalNumberString conține numărul "raw", fără formatare.
+            if (decimal.TryParse(_internalNumberString, System.Globalization.NumberStyles.Any, CultureInfo.CurrentCulture, out decimal number))
             {
-                HexValue = Convert.ToString(number, 16).ToUpper();
+                HexValue = Convert.ToString((long)number, 16).ToUpper();
                 DecValue = number.ToString();
-                OctValue = Convert.ToString(number, 8);
-                BinValue = Convert.ToString(number, 2);
+                OctValue = Convert.ToString((long)number, 8);
+                BinValue = Convert.ToString((long)number, 2);
 
                 OnPropertyChanged(nameof(HexValue));
                 OnPropertyChanged(nameof(DecValue));
                 OnPropertyChanged(nameof(OctValue));
                 OnPropertyChanged(nameof(BinValue));
             }
-            //else
-            //{
-            //    DisplayText = "Invalid Input";
-            //}
         }
 
         //public Dictionary<int, bool> IsDigitEnabled { get; private set; } = new Dictionary<int, bool>(16);
-
-        public ObservableCollection<bool> IsDigitEnabled { get; private set; } = new ObservableCollection<bool>();
 
         private void UpdateEnabledButtons()
         {
@@ -745,7 +786,17 @@ namespace Calculator
             bool isHex = IsHexSelected;
             bool isOctal = IsOctSelected;
             bool isBinary = IsBinSelected;
-            bool IsDec = IsDecSelected; // Check if Decimal base is selected
+            bool isDec = IsDecSelected; 
+            if (isHex) 
+                SelectedBase = 16;
+            else if (isDec)
+                SelectedBase = 10;
+            else if (isOctal)
+                SelectedBase = 8;
+            else if (isBinary)
+                SelectedBase = 2;
+            Properties.Settings.Default.SelectedBase = SelectedBase;
+            Properties.Settings.Default.Save();
 
             //Initialize IsDigitEnabled array to false
             for (int i = 0; i < 16; i++)
@@ -773,7 +824,7 @@ namespace Calculator
                 IsDigitEnabled[7] = true;
             }
             else
-            if (IsDec)
+            if (isDec)
             {
                 IsDigitEnabled[1] = true;
                 IsDigitEnabled[2] = true;

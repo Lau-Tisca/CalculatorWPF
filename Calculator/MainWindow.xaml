@@ -121,7 +121,6 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
                 <!-- Rand adaugat pentru butoanele modul Programmer -->
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -140,45 +139,47 @@
             <Button Content="M+" Grid.Row="0" Grid.Column="3" Command="{Binding MemoryAddCommand}" Margin="2"/>
             <Button Content="M-" Grid.Row="0" Grid.Column="4" Command="{Binding MemorySubtractCommand}" Margin="2"/>
             <Button Content="MS" Grid.Row="0" Grid.Column="5" Command="{Binding MemoryStoreCommand}" Margin="2"/>
+            <Button Content="M>" Grid.Row="1" Grid.Column="5" Command="{Binding ExecuteShowMemoryStackCommand}" Margin="2"/>
+            
 
             <!-- Randul 2 -->
-            <Button Content="A" Background="LightBlue" Grid.Row="1" Grid.Column="0" Command="{Binding NumberCommand}" 
+            <Button Content="A" Background="LightBlue" Grid.Row="0" Grid.Column="0" Command="{Binding NumberCommand}" 
                     CommandParameter="A" Margin="2" IsEnabled="{Binding IsDigitEnabled[10]}" Visibility="{Binding ProgrammerModeVisibility}"/>
             <Button Content="7" Background="LightSteelBlue" Grid.Row="1" Grid.Column="1" Command="{Binding NumberCommand}" CommandParameter="7" Margin="2" IsEnabled="{Binding IsDigitEnabled[7]}"/>
             <Button Content="8" Background="LightSteelBlue" Grid.Row="1" Grid.Column="2" Command="{Binding NumberCommand}" CommandParameter="8" Margin="2" IsEnabled="{Binding IsDigitEnabled[8]}"/>
             <Button Content="9" Background="LightSteelBlue" Grid.Row="1" Grid.Column="3" Command="{Binding NumberCommand}" CommandParameter="9" Margin="2" IsEnabled="{Binding IsDigitEnabled[9]}"/>
             <Button Content="/" Grid.Row="1" Grid.Column="4" Command="{Binding OperatorCommand}" CommandParameter="/" Margin="2"/>
-            <Button Content="Backspace" Background="LightSlateGray" Grid.Row="1" Grid.Column="5" Command="{Binding BackspaceCommand}" Margin="2"/>
+            <Button Content="Backspace" Background="LightSlateGray" Grid.Row="2" Grid.Column="5" Command="{Binding BackspaceCommand}" Margin="2"/>
 
             <!-- Randul 3 -->
-            <Button Content="B" Background="LightBlue" Grid.Row="2" Grid.Column="0"
+            <Button Content="B" Background="LightBlue" Grid.Row="1" Grid.Column="0"
                     Command="{Binding NumberCommand}" CommandParameter="B" Margin="2" IsEnabled="{Binding IsDigitEnabled[11]}" Visibility="{Binding ProgrammerModeVisibility}"/>
             <Button Content="4" Background="LightSteelBlue" Grid.Row="2" Grid.Column="1" Command="{Binding NumberCommand}" CommandParameter="4" Margin="2" IsEnabled="{Binding IsDigitEnabled[4]}"/>
             <Button Content="5" Background="LightSteelBlue" Grid.Row="2" Grid.Column="2" Command="{Binding NumberCommand}" CommandParameter="5" Margin="2" IsEnabled="{Binding IsDigitEnabled[5]}"/>
             <Button Content="6" Background="LightSteelBlue" Grid.Row="2" Grid.Column="3" Command="{Binding NumberCommand}" CommandParameter="6" Margin="2" IsEnabled="{Binding IsDigitEnabled[6]}"/>
             <Button Content="*" Grid.Row="2" Grid.Column="4" Command="{Binding OperatorCommand}" CommandParameter="*" Margin="2"/>
-            <Button Content="CE" Background="IndianRed" Grid.Row="2" Grid.Column="5" Command="{Binding ClearEntryCommand}" Margin="2"/>
+            <Button Content="CE" Background="IndianRed" Grid.Row="3" Grid.Column="5" Command="{Binding ClearEntryCommand}" Margin="2"/>
 
             <!-- Randul 4 -->
-            <Button Content="C" Background="LightBlue" Grid.Row="3" Grid.Column="0" 
+            <Button Content="C" Background="LightBlue" Grid.Row="2" Grid.Column="0" 
                     Command="{Binding NumberCommand}" CommandParameter="C" Margin="2" IsEnabled="{Binding IsDigitEnabled[12]}" Visibility="{Binding ProgrammerModeVisibility}"/>
             <Button Content="1" Background="LightSteelBlue" Grid.Row="3" Grid.Column="1" Command="{Binding NumberCommand}" CommandParameter="1" Margin="2" IsEnabled="{Binding IsDigitEnabled[1]}"/>
             <Button Content="2" Background="LightSteelBlue" Grid.Row="3" Grid.Column="2" Command="{Binding NumberCommand}" CommandParameter="2" Margin="2" IsEnabled="{Binding IsDigitEnabled[2]}"/>
             <Button Content="3" Background="LightSteelBlue" Grid.Row="3" Grid.Column="3" Command="{Binding NumberCommand}" CommandParameter="3" Margin="2" IsEnabled="{Binding IsDigitEnabled[3]}"/>
             <Button Content="-" Grid.Row="3" Grid.Column="4" Command="{Binding OperatorCommand}" CommandParameter="-" Margin="2"/>
-            <Button Content="C" Background="IndianRed" Grid.Row="3" Grid.Column="5" Command="{Binding ClearCommand}" Margin="2"/>
+            <Button Content="C" Background="IndianRed" Grid.Row="4" Grid.Column="5" Command="{Binding ClearCommand}" Margin="2"/>
 
             <!-- Randul 5 -->
-            <Button Content="D" Background="LightBlue" Grid.Row="4" Grid.Column="0"
+            <Button Content="D" Background="LightBlue" Grid.Row="3" Grid.Column="0"
                     Command="{Binding NumberCommand}" CommandParameter="D" Margin="2" IsEnabled="{Binding IsDigitEnabled[13]}" Visibility="{Binding ProgrammerModeVisibility}"/>
             <Button Content="+/-" Grid.Row="4" Grid.Column="1" Command="{Binding NegateCommand}" Margin="2"/>
             <Button Content="0" Background="LightSteelBlue" Grid.Row="4" Grid.Column="2" Command="{Binding NumberCommand}" CommandParameter="0" Margin="2" IsEnabled="{Binding IsDigitEnabled[0]}"/>
             <Button Content="." Grid.Row="4" Grid.Column="3" Command="{Binding DecimalCommand}" Margin="2"/>
             <Button Content="+" Grid.Row="4" Grid.Column="4" Command="{Binding OperatorCommand}" CommandParameter="+" Margin="2"/>
-            <Button Content="=" Background="LightGreen" Grid.Row="4" Grid.Column="5" Command="{Binding CalculateCommand}" Margin="2"/>
+            <Button Content="=" Background="LightGreen" Grid.Row="5" Grid.Column="5" Command="{Binding CalculateCommand}" Margin="2"/>
 
             <!-- Randul 6-->
-            <Button Content="E" Background="LightBlue" Grid.Row="5" Grid.Column="0"
+            <Button Content="E" Background="LightBlue" Grid.Row="4" Grid.Column="0"
                     Command="{Binding NumberCommand}" CommandParameter="E" Margin="2" IsEnabled="{Binding IsDigitEnabled[14]}" Visibility="{Binding ProgrammerModeVisibility}"/>
             <Button Content="√" Grid.Row="5" Grid.Column="1" Command="{Binding OperatorCommand}" CommandParameter="√" Margin="2"/>
             <Button Content="x²" Grid.Row="5" Grid.Column="2" Command="{Binding OperatorCommand}" CommandParameter="x²" Margin="2"/>
@@ -186,12 +187,12 @@
             <Button Content="%" Grid.Row="5" Grid.Column="4" Command="{Binding OperatorCommand}" CommandParameter="%" Margin="2"/>
 
             <!-- Randul 7 (Butoane Mod Programmer - Visible only in Programmer Mode) -->
-            <Button Content="F" Background="LightBlue" Grid.Row="6" Grid.Column="0"
+            <Button Content="F" Background="LightBlue" Grid.Row="5" Grid.Column="0"
                     Command="{Binding NumberCommand}" CommandParameter="F" Margin="2" IsEnabled="{Binding IsDigitEnabled[15]}" Visibility="{Binding ProgrammerModeVisibility}"/>
-            <Button Content="AND" Background="BlanchedAlmond" Grid.Row="6" Grid.Column="1" Command="{Binding ProgrammerOperatorCommand}" CommandParameter="AND" Margin="2" Visibility="{Binding ProgrammerModeVisibility}"/>
+            <!-- Button Content="AND" Background="BlanchedAlmond" Grid.Row="6" Grid.Column="1" Command="{Binding ProgrammerOperatorCommand}" CommandParameter="AND" Margin="2" Visibility="{Binding ProgrammerModeVisibility}"/>
             <Button Content="OR" Background="BlanchedAlmond" Grid.Row="6" Grid.Column="2" Command="{Binding ProgrammerOperatorCommand}" CommandParameter="OR" Margin="2" Visibility="{Binding ProgrammerModeVisibility}"/>
             <Button Content="XOR" Background="BlanchedAlmond" Grid.Row="6" Grid.Column="3" Command="{Binding ProgrammerOperatorCommand}" CommandParameter="XOR" Margin="2" Visibility="{Binding ProgrammerModeVisibility}"/>
-            <Button Content="NOT" Background="BlanchedAlmond" Grid.Row="6" Grid.Column="4" Command="{Binding ProgrammerOperatorCommand}" CommandParameter="NOT" Margin="2" Visibility="{Binding ProgrammerModeVisibility}"/>
+            <Button Content="NOT" Background="BlanchedAlmond" Grid.Row="6" Grid.Column="4" Command="{Binding ProgrammerOperatorCommand}" CommandParameter="NOT" Margin="2" Visibility="{Binding ProgrammerModeVisibility}"/ -->
         </Grid>
     </Grid>
 </Window>
