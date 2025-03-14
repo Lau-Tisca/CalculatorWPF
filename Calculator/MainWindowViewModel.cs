@@ -590,7 +590,8 @@ namespace Calculator
         {
             if (decimal.TryParse(DisplayText, out decimal number))
             {
-                DisplayText = (-number).ToString();
+                number = -number;
+                _internalNumberString = number.ToString();
                 UpdateDisplayText();
             }
         }
@@ -612,13 +613,9 @@ namespace Calculator
 
         private void ExecuteMemoryRecallCommand(object parameter)
         {
-            DisplayText = _memoryValue.ToString();            
-            //UpdateDisplayText();
-            if (MemoryStack.Count > 0)
-            {
-                //DisplayText = MemoryStack[MemoryStack.Count - 1].ToString();
-                UpdateDisplayText();
-            }
+
+            _internalNumberString = _memoryValue.ToString();
+            UpdateDisplayText();
         }
 
         private void ExecuteMemoryAddCommand(object parameter)
@@ -736,28 +733,37 @@ namespace Calculator
         // Helper methods
         private void UpdateDisplayText()
         {
+            CultureInfo culture = CultureInfo.CurrentCulture;
+            string decimalSeparator = culture.NumberFormat.NumberDecimalSeparator;
             if (IsDigitGroupingEnabled)
             {
-                // Folosim _internalNumberString, care nu conține separatorii de mii.
-                if (decimal.TryParse(_internalNumberString,  out decimal number))
+                // If the user is still typing (ends with the decimal separator)
+                // or the _internalNumberString isn't fully parseable, just display it raw
+                if (_internalNumberString.EndsWith(decimalSeparator) ||
+                    !decimal.TryParse(_internalNumberString, System.Globalization.NumberStyles.Any, culture, out decimal number))
                 {
-                    CultureInfo culture = CultureInfo.CurrentCulture;
-                    string formattedNumber = number.ToString("N0", culture); 
-                    DisplayText = formattedNumber;
+                    DisplayText = _internalNumberString;
                 }
                 else
                 {
-                    // Dacă parsarea eșuează, afișăm șirul neformatat
-                    DisplayText = _internalNumberString;
+                    // Determine how many digits are present after the decimal separator
+                    int fractionalDigits = 0;
+                    if (_internalNumberString.Contains(decimalSeparator))
+                    {
+                        fractionalDigits = _internalNumberString.Substring(_internalNumberString.IndexOf(decimalSeparator) + 1).Length;
+                    }
+                    // Build a custom format string, for example "N3" if fractionalDigits is 3.
+                    string formatString = "N" + fractionalDigits;
+                    DisplayText = number.ToString(formatString, culture);
                 }
             }
             else
             {
-                // Când digit grouping nu e activ, afișează exact _internalNumberString
                 DisplayText = _internalNumberString;
             }
             UpdateBaseDisplayText();
         }
+
 
         private void UpdateBaseDisplayText()
         {
