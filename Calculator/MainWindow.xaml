@@ -10,7 +10,7 @@
     <Window.InputBindings>
         <KeyBinding Key="Escape" Command="{Binding ClearCommand}" />
         <KeyBinding Key="Enter" Command="{Binding CalculateCommand}" />
-        <KeyBinding Key="Back" Command="{Binding BackspaceCommand}" />
+        <KeyBinding Key="Backspace" Command="{Binding BackspaceCommand}" />
         <KeyBinding Key="Delete" Command="{Binding ClearEntryCommand}" />
         
         <!-- Cifre -->
