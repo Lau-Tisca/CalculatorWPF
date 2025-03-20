@@ -193,7 +193,7 @@ namespace Calculator
                     _isHexSelected = value;
                     OnPropertyChanged(nameof(IsHexSelected));
 
-                    if (value) //Daca este selectata hexa, celelalte trebuie sa fie false.
+                    if (value)
                     {
                         IsDecSelected = false;
                         OnPropertyChanged(nameof(IsDecSelected));
@@ -202,13 +202,13 @@ namespace Calculator
                         IsBinSelected = false;
                         OnPropertyChanged(nameof(IsBinSelected));
                         UpdateEnabledButtons();
-                        UpdateBaseDisplayText(); // Re-afiseaza in baza selectata
+                        UpdateBaseDisplayText();
                     }
                 }
             }
         }
 
-        private bool _isDecSelected = true; //Initial selectat
+        private bool _isDecSelected = true; 
         public bool IsDecSelected
         {
             get { return _isDecSelected; }
@@ -325,12 +325,11 @@ namespace Calculator
         public ICommand PasteCommand { get; private set; }
         public ICommand AboutCommand { get; private set; }
 
-        // Câmpuri private
         private decimal _firstOperand;
         private string _currentOperator = string.Empty;
         private bool _isNewNumber = true;
         private string _clipboardContent = string.Empty;
-        private decimal _memoryValue; // Simplified single memory slot
+        private decimal _memoryValue; 
         private bool _isOperationInCascade = false;
 
         // Constructor
@@ -365,7 +364,7 @@ namespace Calculator
             IsProgrammerMode = !IsStandardMode;
             SelectedBase = Properties.Settings.Default.SelectedBase;
 
-            IsDecSelected = true; //Initial selectat
+            IsDecSelected = true;
             UpdateBaseDisplayText();
 
             for(int i = 0; i < 16; i++)
@@ -375,13 +374,10 @@ namespace Calculator
             UpdateEnabledButtons();
         }
 
-        // Implementare metode
         private void ExecuteNumberCommand(string number)
         {
             if (number != null)
             {
-                // Dacă suntem la început, înlocuim _internalNumberString cu cifra introdusă,
-                // altfel adăugăm cifra la sfârșit.
                 if (_isNewNumber)
                 {
                     _internalNumberString = number;
@@ -391,8 +387,6 @@ namespace Calculator
                 {
                     _internalNumberString += number;
                 }
-                // Actualizează DisplayText pe baza _internalNumberString fără separatorii de mii,
-                // iar UpdateDisplayText se va ocupa de formatarea lor dacă e necesar.
                 UpdateDisplayText();
             }
         }
@@ -403,7 +397,7 @@ namespace Calculator
             _internalNumberString = DisplayText;
             if (operatorSymbol != null)
             {
-                if (!_isNewNumber && _isOperationInCascade)  // Calculate intermediate result for cascading operations
+                if (!_isNewNumber && _isOperationInCascade) 
                 {
                     ExecuteCalculateCommand(null);
                 }
@@ -487,15 +481,6 @@ namespace Calculator
                             break;
                     }
                 }
-
-
-                //if (decimal.TryParse(DisplayText, out decimal currentNumber))
-                //{
-                //    _firstOperand = currentNumber;
-                //    _currentOperator = operatorSymbol;
-                //    _isNewNumber = true;
-                //    _isOperationInCascade = true;
-                //}
             }
         }
 
@@ -577,7 +562,6 @@ namespace Calculator
             if (!string.IsNullOrEmpty(_internalNumberString))
             {
                 _internalNumberString = _internalNumberString.Length == 1 ? "0" : _internalNumberString.Substring(0, _internalNumberString.Length - 1);
-                // Dacă s-a șters tot, considerăm că avem "0"
                 if (string.IsNullOrEmpty(_internalNumberString))
                 {
                     _internalNumberString = "0";
@@ -647,7 +631,6 @@ namespace Calculator
 
         private void ExecuteShowMemoryStackCommand()
         {
-            // Afișează stiva de valori. Puteți afișa folosind un MessageBox sau deschideți un Popup personalizat.
             string message = "Memorie:\n";
             int index = 0;
             foreach (var val in MemoryStack)
@@ -655,9 +638,6 @@ namespace Calculator
                 message += $"{index++}: {val.ToString("N", CultureInfo.CurrentCulture)}\n";
             }
             MessageBox.Show(message, "Stiva de Memorie (M>)");
-
-            // Dacă doriți ca utilizatorul să poată selecta o valoare, ar fi ideal să afișați un control (ex. ListBox) care permite
-            // interacțiunea și apoi, în urma selecției, să setați DisplayText sau _internalNumberString cu valoarea aleasă.
         }
 
 
@@ -687,22 +667,6 @@ namespace Calculator
                     return;
                 }
                 long result = currentValue;
-
-                switch (programmerOperator)
-                {
-                    case "AND":
-                        // TODO: Implement AND
-                        break;
-                    case "OR":
-                        // TODO: Implement OR
-                        break;
-                    case "XOR":
-                        // TODO: Implement XOR
-                        break;
-                    case "NOT":
-                        // TODO: Implement NOT
-                        break;
-                }
                 DisplayText = result.ToString("X");
                 UpdateDisplayText();
             }
@@ -728,17 +692,14 @@ namespace Calculator
 
         private void ExecuteAboutCommand(object parameter)
         {
-            MessageBox.Show("Calculator WPF \nTișcă Laurențiu-Ștefan - 10LF333"); // Replace with your group information
+            MessageBox.Show("Calculator WPF \nTișcă Laurențiu-Ștefan - 10LF333");
         }
-        // Helper methods
         private void UpdateDisplayText()
         {
             CultureInfo culture = CultureInfo.CurrentCulture;
             string decimalSeparator = culture.NumberFormat.NumberDecimalSeparator;
             if (IsDigitGroupingEnabled)
-            {
-                // If the user is still typing (ends with the decimal separator)
-                // or the _internalNumberString isn't fully parseable, just display it raw
+            { 
                 if (_internalNumberString.EndsWith(decimalSeparator) ||
                     !decimal.TryParse(_internalNumberString, System.Globalization.NumberStyles.Any, culture, out decimal number))
                 {
@@ -746,13 +707,11 @@ namespace Calculator
                 }
                 else
                 {
-                    // Determine how many digits are present after the decimal separator
                     int fractionalDigits = 0;
                     if (_internalNumberString.Contains(decimalSeparator))
                     {
                         fractionalDigits = _internalNumberString.Substring(_internalNumberString.IndexOf(decimalSeparator) + 1).Length;
                     }
-                    // Build a custom format string, for example "N3" if fractionalDigits is 3.
                     string formatString = "N" + fractionalDigits;
                     DisplayText = number.ToString(formatString, culture);
                 }
@@ -767,7 +726,6 @@ namespace Calculator
 
         private void UpdateBaseDisplayText()
         {
-            // Se presupune că _internalNumberString conține numărul "raw", fără formatare.
             if (decimal.TryParse(_internalNumberString, System.Globalization.NumberStyles.Any, CultureInfo.CurrentCulture, out decimal number))
             {
                 HexValue = Convert.ToString((long)number, 16).ToUpper();
@@ -781,8 +739,6 @@ namespace Calculator
                 OnPropertyChanged(nameof(BinValue));
             }
         }
-
-        //public Dictionary<int, bool> IsDigitEnabled { get; private set; } = new Dictionary<int, bool>(16);
 
         private void UpdateEnabledButtons()
         {
@@ -804,14 +760,12 @@ namespace Calculator
             Properties.Settings.Default.SelectedBase = SelectedBase;
             Properties.Settings.Default.Save();
 
-            //Initialize IsDigitEnabled array to false
             for (int i = 0; i < 16; i++)
             {
                 IsDigitEnabled[i] = false;
             }
 
-            //Digit buttons
-            IsDigitEnabled[0] = true; // 0 is always enabled
+            IsDigitEnabled[0] = true;
 
             if (isBinary)
             {
@@ -861,70 +815,13 @@ namespace Calculator
                 IsDigitEnabled[14] = true;
                 IsDigitEnabled[15] = true;
             }
-            // Notify property changes for all digit enabled states
+
             for (int i = 0; i < 16; i++)
             {
                 OnPropertyChanged($"IsDigitEnabled[{i}]");
             }
 
-            //OnPropertyChanged(nameof(IsHexEnabled));
-
         }
-
-        //private void UpdateEnabledButtons()
-        //{
-        //    bool isHex = IsHexSelected;
-        //    bool isOctal = IsOctSelected;
-        //    bool isBinary = IsBinSelected;
-        //    bool isDecimal = IsDecSelected; // Check if Decimal base is selected
-
-        //    //Initialize IsDigitEnabled array to false
-        //    for (int i = 0; i <= 9; i++)
-        //    {
-        //        IsDigitEnabled[i] = false;
-        //    }
-        //    OnPropertyChanged("IsDigitEnabled");
-
-        //    //Digit buttons
-        //    IsDigitEnabled[0] = true; // 0 is always enabled
-
-        //    if (isBinary)
-        //    {
-        //        IsDigitEnabled[1] = true;
-        //        IsHexEnabled = false;
-        //        OnPropertyChanged(nameof(IsHexEnabled));
-        //    }
-
-        //    else if (isOctal)
-        //    {
-        //        IsDigitEnabled[1] = true;
-        //        IsDigitEnabled[2] = true;
-        //        IsDigitEnabled[3] = true;
-        //        IsDigitEnabled[4] = true;
-        //        IsDigitEnabled[5] = true;
-        //        IsDigitEnabled[6] = true;
-        //        IsDigitEnabled[7] = true;
-        //        IsHexEnabled = false;
-        //        OnPropertyChanged(nameof(IsHexEnabled));
-        //    }
-
-        //    else if (isDecimal || isHex)
-        //    {
-        //        for (int i = 1; i < 10; i++)
-        //            IsDigitEnabled[i] = true;
-        //        IsHexEnabled = true;
-        //        OnPropertyChanged(nameof(IsHexEnabled));
-        //    }
-
-        //    // Notify property changes for all digit enabled states
-        //    for (int i = 0; i <= 9; i++)
-        //    {
-        //        OnPropertyChanged($"IsDigitEnabled[{i}]");
-        //    }
-
-        //    IsHexEnabled = isHex;
-        //    OnPropertyChanged(nameof(IsHexEnabled));
-        //}
 
         private void UpdateVisibility()
         {
